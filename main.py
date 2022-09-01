@@ -64,14 +64,74 @@ class cribbage:
         self.updated_deck = shuffled_deck[self.deck_index:] # all the cards that are left
 
 
+    def evaluate_points_in_hand(self, community_card = None):
+        '''
+        Count up all the points in the hand currently
+        if community card is passed in, include it in the hand count.
+
+        This could be used before discarding any cards to see what gives the most points so far,
+        or after the game is played to count pegging points.
+
+        # There are a lot of ways to score:
+        #
+        # 15              | 2 points
+        # Pair            | 2 points
+        # Three of a kind |	6 points
+        # Four of a kind  | 12 points
+        # Run             | 1 point/card
+        # Four Card Flush | 4 points
+        # Five Card Flush | 5 points
+        # Nobs            | 1 point	(Jack of the same suit as the starter)
+
+        This function is going to call to other functions that evaluate these scoring ways and then will add up all the
+        results
+        '''
+
+        if community_card!=None: # if we have a community card we want to include do that
+            player_hands = self.inital_player_hands
+            for i in player_hands:
+                i.append(community_card)
+
+        else: # otherwise just look at the hands
+            player_hands = self.inital_player_hands
+
+
+
+        ### BEGIN CHECKING POINTS ###
+        n_fifteens = self.fifteens(player_hands)
+        pair_points = None
+
+
+        total_points = (np.asarray(n_fifteens) * 2.0) #+ (pair_points * 2.0)
+        print(player_hands)
+        print("TOTAL POINTS: ",total_points)
+        pass
+
+    def fifteens(self, player_hands):
+        # count up the number of fifteens in a hand
+        target = 15
+        n_fifteens = []
+        for hand in player_hands:
+            hand = [list(x) for x in hand] # convert hands to lists
+            numbers = [i[2] for i in hand]
+
+            result = [seq for i in range(len(numbers), 0, -1)
+                      for seq in itertools.combinations(numbers, i)
+                      if sum(seq) == target]
+
+            n_fifteens.append(len(result))
+        return n_fifteens
+
 x = cribbage() # get a deck of cards
-x.deal_cards(n_players=2) # deal the cards to the players
+x.deal_cards(n_players=3) # deal the cards to the players
+x.evaluate_points_in_hand(community_card=x.discard_pile[0])
 
-for hand in x.inital_player_hands:
-    print(hand)
 
-print(x.discard_pile)
-print(x.updated_deck)
-
-print()
-print(sum([len(i) for i in x.inital_player_hands])+len(x.discard_pile)+len(x.updated_deck))
+# for hand in x.inital_player_hands:
+#     print(hand)
+#
+# print(x.discard_pile)
+# print(x.updated_deck)
+#
+# print()
+# print(sum([len(i) for i in x.inital_player_hands])+len(x.discard_pile)+len(x.updated_deck))
