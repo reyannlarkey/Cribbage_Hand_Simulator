@@ -108,12 +108,17 @@ class cribbage:
         n_fifteens = self.n_fifteens(player_hands)
         n_pairs = self.n_pairs(player_hands)
         run_points = self.run_points(player_hands)
+        flush_points = self.flush_points(player_hands)
 
-        print("Fifteens: ", n_fifteens)
-        print("Pairs: ", n_pairs)
-        print("RUN POINTS: ", run_points)
+        # print("Fifteens: ", n_fifteens)
+        # print("Pairs: ", n_pairs)
+        # print("RUN POINTS: ", run_points)
 
-        total_points = (np.asarray(n_fifteens) * 2.0) + (np.asarray(n_pairs) * 2.0) + (np.asarray(run_points))
+        total_points = (np.asarray(n_fifteens) * 2.0)\
+                       + (np.asarray(n_pairs) * 2.0) \
+                       + (np.asarray(run_points)) \
+                       + (np.asarray(flush_points))
+
         for i, hand in enumerate(player_hands):
             for j in hand:
                 print(j)
@@ -144,6 +149,8 @@ class cribbage:
         n_pairs = []
         for hand in player_hands:
             hand = [list(x) for x in hand] # convert hands to lists
+
+            # Have to update these cards so that Jacks don't get paired with Kings, etc.
             for i, card in enumerate(hand):
                 if card[1] == "J":
                     hand[i][2] = 11
@@ -197,6 +204,18 @@ class cribbage:
             total_score.append(hand_score)
         return total_score
 
+    def flush_points(self, player_hands):
+        # count up number of cards with same suit, if more than 3, return that many points
+        total_points = []
+        for hand in player_hands:
+            hand = [list(x) for x in hand]  # convert hands to lists
+            suits = [hand[0] for hand in hand]
+
+            suit_counts = [suits.count(x) for x in set(suits) if suits.count(x)>3]
+            flush_points = sum(suit_counts)
+            total_points.append(flush_points)
+
+        return flush_points
 
 x = cribbage() # get a deck of cards
 x.deal_cards(n_players=3) # deal the cards to the players
