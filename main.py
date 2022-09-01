@@ -39,7 +39,7 @@ class cribbage:
             player_piles = [[], [], [], []] # four empty piles of cards
 
         else:
-            print("only 2, 3, or 4 players are allowed")
+            print("Only 2, 3, or 4 players are allowed")
             quit()
 
 
@@ -48,11 +48,9 @@ class cribbage:
 
 
         ### Deal the cards appropriately
-
-        # n_players * cards per player = the total number of cards to draw from the deck
+        ### n_players * cards per player = the total number of cards to draw from the deck
         drawn_cards = shuffled_deck[0: n_players*cards_per_player]    # randomly select that many cards from the deck without replacement
         for i in range(cards_per_player*n_players):
-            # print(i%n_players)
             player_piles[i%n_players].append(drawn_cards[i]) # put the cards into player hands sequentially
 
         self.deck_index+=n_players*cards_per_player #update index
@@ -66,8 +64,7 @@ class cribbage:
         self.discard_pile = discard_pile
         self.updated_deck = shuffled_deck[self.deck_index:] # all the cards that are left
 
-
-    def evaluate_points_in_hand(self, community_card = None):
+    def evaluate_points_in_hands(self, community_card = None):
         '''
         Count up all the points in the hand currently
         if community card is passed in, include it in the hand count.
@@ -216,10 +213,31 @@ class cribbage:
 
         return total_points
 
+    def discard_cards(self):
+        '''
+        This is where things get tricky, and is really the crux of why I wanted to do this.
+
+        There are different ways you could play this, depending on if it's your crib, if you want to
+        gamble and try and maximize the potential points you get, if you want to play it safe based on
+        the points in your hand, etc.
+
+        Just to implement *something* I'm going to have it maximize the points in the hand currently.
+        This can/will be changed later, but let's just start with this.
+        '''
+
+        player_hands = self.inital_player_hands
+
+        for hand in player_hands:
+            print(hand)
+
+
+        pass
+
+
 x = cribbage() # get a deck of cards
 x.deal_cards(n_players=2) # deal the cards to the players
-x.evaluate_points_in_hand()#community_card=x.discard_pile[0])
-
+# x.evaluate_points_in_hands()#community_card=x.discard_pile[0])
+x.discard_cards()
 
 # for hand in x.inital_player_hands:
 #     print(hand)
