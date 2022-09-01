@@ -102,17 +102,16 @@ class cribbage:
         else: # otherwise just look at the hands
             player_hands = self.inital_player_hands
 
-
-
         ### BEGIN CHECKING POINTS ###
         n_fifteens = self.n_fifteens(player_hands)
         n_pairs = self.n_pairs(player_hands)
         run_points = self.run_points(player_hands)
         flush_points = self.flush_points(player_hands)
 
-        # print("Fifteens: ", n_fifteens)
-        # print("Pairs: ", n_pairs)
-        # print("RUN POINTS: ", run_points)
+        print("Fifteens: ", n_fifteens)
+        print("Pairs: ", n_pairs)
+        print("RUN POINTS: ", run_points)
+        print("FLUSH POINTS: ", flush_points)
 
         total_points = (np.asarray(n_fifteens) * 2.0)\
                        + (np.asarray(n_pairs) * 2.0) \
@@ -121,7 +120,7 @@ class cribbage:
 
         for i, hand in enumerate(player_hands):
             for j in hand:
-                print(j)
+                print(j[0:2])
             print(total_points[i])
             print()
 
@@ -215,11 +214,11 @@ class cribbage:
             flush_points = sum(suit_counts)
             total_points.append(flush_points)
 
-        return flush_points
+        return total_points
 
 x = cribbage() # get a deck of cards
-x.deal_cards(n_players=3) # deal the cards to the players
-x.evaluate_points_in_hand(community_card=x.discard_pile[0])
+x.deal_cards(n_players=2) # deal the cards to the players
+x.evaluate_points_in_hand()#community_card=x.discard_pile[0])
 
 
 # for hand in x.inital_player_hands:
