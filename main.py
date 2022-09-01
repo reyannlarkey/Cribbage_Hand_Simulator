@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 import random
+from math import comb
+
 class cribbage:
     def __init__(self):
 
@@ -76,11 +78,15 @@ class cribbage:
         #
         # 15              | 2 points
         # Pair            | 2 points
-        # Three of a kind |	6 points
-        # Four of a kind  | 12 points
+        #
+        # Three of a kind |	6 points  **** THESE TWO ARE JUST SUBSETS OF THE PAIRS REALLY ****
+        # Four of a kind  | 12 points ********************************************************
+        #
         # Run             | 1 point/card
-        # Four Card Flush | 4 points
-        # Five Card Flush | 5 points
+
+        # Four Card Flush | 4 points  **** THESE TWO ARE ALSO REALLY JUST THE SAME THING ****
+        # Five Card Flush | 5 points  *******************************************************
+
         # Nobs            | 1 point	(Jack of the same suit as the starter)
 
         This function is going to call to other functions that evaluate these scoring ways and then will add up all the
@@ -98,16 +104,22 @@ class cribbage:
 
 
         ### BEGIN CHECKING POINTS ###
-        n_fifteens = self.fifteens(player_hands)
-        pair_points = None
+        n_fifteens = self.n_fifteens(player_hands)
+        n_pairs = self.n_pairs(player_hands)
 
+        
 
-        total_points = (np.asarray(n_fifteens) * 2.0) #+ (pair_points * 2.0)
-        print(player_hands)
-        print("TOTAL POINTS: ",total_points)
+        total_points = (np.asarray(n_fifteens) * 2.0) + (np.asarray(n_pairs) * 2.0)
+        for i, hand in enumerate(player_hands):
+            print(hand)
+            print(total_points[i])
+            print()
+
+        # print(player_hands)
+        # print("TOTAL POINTS: ",total_points)
         pass
 
-    def fifteens(self, player_hands):
+    def n_fifteens(self, player_hands):
         # count up the number of fifteens in a hand
         target = 15
         n_fifteens = []
@@ -121,6 +133,15 @@ class cribbage:
 
             n_fifteens.append(len(result))
         return n_fifteens
+    def n_pairs(self, player_hands):
+        # Counts the numbers of pairs in a hand
+        n_pairs = []
+        for hand in player_hands:
+            hand = [list(x) for x in hand] # convert hands to lists
+            numbers = [i[2] for i in hand] # get just the numbers
+            counts = {item: comb(numbers.count(item),2) for item in numbers} # get the # of combinations of pairs
+            n_pairs.append(sum(counts.values())) # append the total number of pairs to the n_pairs list
+        return n_pairs
 
 x = cribbage() # get a deck of cards
 x.deal_cards(n_players=3) # deal the cards to the players
