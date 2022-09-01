@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
+
 import random
 from math import comb
 
@@ -106,14 +107,14 @@ class cribbage:
         ### BEGIN CHECKING POINTS ###
         n_fifteens = self.n_fifteens(player_hands)
         n_pairs = self.n_pairs(player_hands)
+        n_runs = self.n_runs(player_hands)
 
-        
 
-        total_points = (np.asarray(n_fifteens) * 2.0) + (np.asarray(n_pairs) * 2.0)
-        for i, hand in enumerate(player_hands):
-            print(hand)
-            print(total_points[i])
-            print()
+        # total_points = (np.asarray(n_fifteens) * 2.0) + (np.asarray(n_pairs) * 2.0)
+        # for i, hand in enumerate(player_hands):
+        #     print(hand)
+        #     print(total_points[i])
+        #     print()
 
         # print(player_hands)
         # print("TOTAL POINTS: ",total_points)
@@ -133,6 +134,7 @@ class cribbage:
 
             n_fifteens.append(len(result))
         return n_fifteens
+
     def n_pairs(self, player_hands):
         # Counts the numbers of pairs in a hand
         n_pairs = []
@@ -142,6 +144,52 @@ class cribbage:
             counts = {item: comb(numbers.count(item),2) for item in numbers} # get the # of combinations of pairs
             n_pairs.append(sum(counts.values())) # append the total number of pairs to the n_pairs list
         return n_pairs
+
+    def n_runs(self, player_hands):
+        # This one's a little trickier, because we need to update:
+        # J->11
+        # Q->12
+        # K->13
+        # so we can just look at sequential #'s
+
+        for hand in player_hands:
+            hand = [list(x) for x in hand] # convert hands to lists
+
+            for i, card in enumerate(hand):
+                if card[1] == "J":
+                    hand[i][2]=11
+                if card[1] == "Q":
+                    hand[i][2]=12
+                if card[1] == "K":
+                    hand[i][2] = 13
+
+            numbers = [i[2] for i in hand]  # get just the numbers
+
+            ### This gets the consecutive #'s
+
+            numbers = [4,5,5,6]
+            gb = itertools.groupby(enumerate(sorted(set(numbers))), key=lambda x: x[0] - x[1])
+
+            # Repack elements from each group into list
+            all_groups = ([i[1] for i in g] for _, g in gb)
+
+            # Filter out one element lists
+            run_cards = list(filter(lambda x: len(x) >=3 , all_groups))
+
+
+            print(sorted(numbers))
+            print(run_cards)
+
+            c = 0
+            for i in run_cards:
+                for num in i:
+                    print(numbers.count(num))
+                    c+= (numbers.count(num)-1) * len(i)
+
+
+            print(c)
+            print()
+
 
 x = cribbage() # get a deck of cards
 x.deal_cards(n_players=3) # deal the cards to the players
