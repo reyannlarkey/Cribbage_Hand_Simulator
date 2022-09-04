@@ -64,7 +64,7 @@ class cribbage:
         self.discard_pile = discard_pile
         self.updated_deck = shuffled_deck[self.deck_index:] # all the cards that are left
 
-    def evaluate_points_in_hands(self, community_card = None):
+    def evaluate_points_in_hand(self, hand_to_evaluate, community_card = None):
         '''
         Count up all the points in the hand currently
         if community card is passed in, include it in the hand count.
@@ -92,124 +92,111 @@ class cribbage:
         '''
 
         if community_card!=None: # if we have a community card we want to include do that
-            player_hands = self.inital_player_hands
-            for i in player_hands:
-                i.append(community_card)
+            # player_hands = #self.inital_player_hands
+            hand_to_evaluate.append(community_card)
 
-        else: # otherwise just look at the hands
-            player_hands = self.inital_player_hands
 
         ### BEGIN CHECKING POINTS ###
-        n_fifteens = self.n_fifteens(player_hands)
-        n_pairs = self.n_pairs(player_hands)
-        run_points = self.run_points(player_hands)
-        flush_points = self.flush_points(player_hands)
+        n_fifteens = self.n_fifteens(hand_to_evaluate)
+        n_pairs = self.n_pairs(hand_to_evaluate)
+        run_points = self.run_points(hand_to_evaluate)
+        flush_points = self.flush_points(hand_to_evaluate)
 
-        # print("Fifteens: ", n_fifteens)
-        # print("Pairs: ", n_pairs)
-        # print("RUN POINTS: ", run_points)
-        # print("FLUSH POINTS: ", flush_points)
+        print("Fifteens: ", n_fifteens[0]*2.0)
+        print("Pairs: ", n_pairs[0]*2.0)
+        print("Runs :" ,run_points[0])
+        print("Flushes :", flush_points[0])
 
+        ### add up all the returned points
         total_points = (np.asarray(n_fifteens) * 2.0)\
                        + (np.asarray(n_pairs) * 2.0) \
                        + (np.asarray(run_points)) \
                        + (np.asarray(flush_points))
-
-        # for i, hand in enumerate(player_hands):
-        #     for j in hand:
-        #         print(j[0:2])
-        #     print(total_points[i])
-        #     print()
-
-        # print(player_hands)
-        # print("TOTAL POINTS: ",total_points)
+        print("TOTAL : ", total_points[0])
         return total_points
 
-    def n_fifteens(self, player_hands):
+    def n_fifteens(self, hand_to_evaluate):
         # count up the number of fifteens in a hand
         target = 15
         n_fifteens = []
-        for hand in player_hands:
-            hand = [list(x) for x in hand] # convert hands to lists
-            numbers = [i[2] for i in hand]
+        hand = [list(x) for x in hand_to_evaluate] # convert hand to lists
+        numbers = [i[2] for i in hand]
 
-            result = [seq for i in range(len(numbers), 0, -1)
-                      for seq in itertools.combinations(numbers, i)
-                      if sum(seq) == target]
+        result = [seq for i in range(len(numbers), 0, -1)
+                  for seq in itertools.combinations(numbers, i)
+                  if sum(seq) == target]
 
-            n_fifteens.append(len(result))
+        n_fifteens.append(len(result))
         return n_fifteens
 
-    def n_pairs(self, player_hands):
+    def n_pairs(self, hand_to_evaluate):
         # Counts the numbers of pairs in a hand
         n_pairs = []
-        for hand in player_hands:
-            hand = [list(x) for x in hand] # convert hands to lists
 
-            # Have to update these cards so that Jacks don't get paired with Kings, etc.
-            for i, card in enumerate(hand):
-                if card[1] == "J":
-                    hand[i][2] = 11
-                if card[1] == "Q":
-                    hand[i][2] = 12
-                if card[1] == "K":
-                    hand[i][2] = 13
+        hand = [list(x) for x in hand_to_evaluate] # convert hands to lists
 
-            numbers = [i[2] for i in hand] # get just the numbers
-            counts = {item: comb(numbers.count(item),2) for item in numbers} # get the # of combinations of pairs
-            n_pairs.append(sum(counts.values())) # append the total number of pairs to the n_pairs list
+        # Have to update these cards so that Jacks don't get paired with Kings, etc.
+        for i, card in enumerate(hand):
+            if card[1] == "J":
+                hand[i][2] = 11
+            if card[1] == "Q":
+                hand[i][2] = 12
+            if card[1] == "K":
+                hand[i][2] = 13
+
+        numbers = [i[2] for i in hand] # get just the numbers
+        counts = {item: comb(numbers.count(item),2) for item in numbers} # get the # of combinations of pairs
+        n_pairs.append(sum(counts.values())) # append the total number of pairs to the n_pairs list
         return n_pairs
 
-    def run_points(self, player_hands):
+    def run_points(self, hand_to_evaluate):
         # This one's a little trickier, because we need to update:
         # J->11
         # Q->12
         # K->13
         # so we can just look at sequential #'s
         total_score = []
-        for hand in player_hands:
-            hand = [list(x) for x in hand] # convert hands to lists
+        hand = [list(x) for x in hand_to_evaluate] # convert hands to lists
 
-            for i, card in enumerate(hand):
-                if card[1] == "J":
-                    hand[i][2]=11
-                if card[1] == "Q":
-                    hand[i][2]=12
-                if card[1] == "K":
-                    hand[i][2] = 13
+        for i, card in enumerate(hand):
+            if card[1] == "J":
+                hand[i][2]=11
+            if card[1] == "Q":
+                hand[i][2]=12
+            if card[1] == "K":
+                hand[i][2] = 13
 
-            numbers = [i[2] for i in hand]  # get just the numbers
+        numbers = [i[2] for i in hand]  # get just the numbers
 
-            ### This gets the consecutive #'s
-            gb = itertools.groupby(enumerate(sorted(set(numbers))), key=lambda x: x[0] - x[1])
+        ### This gets the consecutive #'s
+        gb = itertools.groupby(enumerate(sorted(set(numbers))), key=lambda x: x[0] - x[1])
 
-            # Repack elements from each group into list
-            all_groups = ([i[1] for i in g] for _, g in gb)
+        # Repack elements from each group into list
+        all_groups = ([i[1] for i in g] for _, g in gb)
 
-            # Filter out one element lists
-            run_cards = list(filter(lambda x: len(x) >=3 , all_groups))
+        # Filter out one element lists
+        run_cards = list(filter(lambda x: len(x) >=3 , all_groups))
 
-            # For each run, count up the points (c), then add them together (total_score)
-            hand_score= 0
-            for i in run_cards:
-                c = len(i)
-                for num in i:
-                    c*=numbers.count(num)
-                hand_score+=c
+        # For each run, count up the points (c), then add them together (total_score)
+        hand_score= 0
+        for i in run_cards:
+            c = len(i)
+            for num in i:
+                c*=numbers.count(num)
+            hand_score+=c
 
-            total_score.append(hand_score)
+        total_score.append(hand_score)
         return total_score
 
-    def flush_points(self, player_hands):
+    def flush_points(self, hand_to_evaluate):
         # count up number of cards with same suit, if more than 3, return that many points
         total_points = []
-        for hand in player_hands:
-            hand = [list(x) for x in hand]  # convert hands to lists
-            suits = [hand[0] for hand in hand]
+        hand = [list(x) for x in hand_to_evaluate]  # convert hand to lists
+        suits = [hand[0] for hand in hand]
 
-            suit_counts = [suits.count(x) for x in set(suits) if suits.count(x)>3]
-            flush_points = sum(suit_counts)
-            total_points.append(flush_points)
+        suit_counts = [suits.count(x) for x in set(suits) if suits.count(x)>3]
+        flush_points = sum(suit_counts)
+        total_points.append(flush_points)
 
         return total_points
 
@@ -233,12 +220,12 @@ class cribbage:
             ndiscard = 1
 
 
-        print(self.evaluate_points_in_hands(player_hands))
+
         for hand in player_hands:
             potential_hands = []
 
             print(hand)
-            print(self.evaluate_points_in_hands(hand))
+            print(self.evaluate_points_in_hand(hand))
             # print()
             # for combo in itertools.combinations(hand, len(hand)-ndiscard):
             #     possible_hand = list(combo)
@@ -252,10 +239,17 @@ class cribbage:
         pass
 
 
+'''
+POINT EVALUATOR CANNOT HANDLE SINGLE HANDS,WHICH IS A PROBLEM RN, NEED TO FIX THIS!
+'''
+
+
 x = cribbage(n_players = 3)# get a deck of cards
 x.deal_cards() # deal the cards to the players
-x.evaluate_points_in_hands()#community_card=x.discard_pile[0])
-x.discard_cards()
+x.evaluate_points_in_hand(hand_to_evaluate=[('Spades', '2', 5), ('Spades', '4', 4), ('Hearts', '9', 9), ('Spades', '10', 10), ('Spades', 'J', 10)])
+
+# x.evaluate_points_in_hands()#community_card=x.discard_pile[0])
+# x.discard_cards()
 # for hand in x.inital_player_hands:
 #     print(hand)
 #
