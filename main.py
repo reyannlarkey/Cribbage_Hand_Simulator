@@ -64,7 +64,7 @@ class cribbage:
         self.discard_pile = discard_pile
         self.updated_deck = shuffled_deck[self.deck_index:] # all the cards that are left
 
-    def evaluate_points_in_hand(self, hand_to_evaluate, community_card = None):
+    def evaluate_points_in_hand(self, hand_to_evaluate, community_card = None, flip_card = None):
         '''
         Count up all the points in the hand currently
         if community card is passed in, include it in the hand count.
@@ -101,6 +101,11 @@ class cribbage:
         n_pairs = self.n_pairs(hand_to_evaluate)
         run_points = self.run_points(hand_to_evaluate)
         flush_points = self.flush_points(hand_to_evaluate)
+        if flip_card!=None:
+            nobs_points = self.nobs_points(hand_to_evaluate, flip_card)
+        else:
+            nobs_points = 0
+
 
         # print("Fifteens: ", n_fifteens[0]*2.0)
         # print("Pairs: ", n_pairs[0]*2.0)
@@ -111,8 +116,14 @@ class cribbage:
         total_points = (np.asarray(n_fifteens) * 2.0)\
                        + (np.asarray(n_pairs) * 2.0) \
                        + (np.asarray(run_points)) \
-                       + (np.asarray(flush_points))
-        # print("TOTAL : ", total_points[0])
+                       + (np.asarray(flush_points))\
+                       + (np.asarray(nobs_points))
+
+        # print("Fifteens: ", n_fifteens[0]*2.0)
+        # print("Pairs: ", n_pairs[0]*2.0)
+        # print("Runs :" ,run_points[0])
+        # print("Flushes :", flush_points[0])
+        # print("Nobs :", nobs_points)
         return total_points
 
     def n_fifteens(self, hand_to_evaluate):
@@ -200,6 +211,19 @@ class cribbage:
 
         return total_points
 
+    def nobs_points(self, hand_to_evaluate, flip_card):
+        nobs_points = 0
+        if flip_card[1] != "J": # make sure flip card isn't a jack already
+            flip_card_suit = flip_card[0] # if not, check if we have a Jack of same suit in our hand (1 point)
+            for card in hand_to_evaluate:
+                if card[1]=='J' and card[0] == flip_card_suit:
+                    nobs_points = 1
+                    break
+
+
+        return nobs_points
+
+
     def discard_cards(self):
         '''
         This is where things get tricky, and is really the crux of why I wanted to do this.
@@ -218,8 +242,15 @@ class cribbage:
             n_discard = 2
         else:
             n_discard = 1
+
+        self.player_hands_after_discard = []
         for hand in player_hands: # check through all the hands
-            print(self.optimal_discard(hand, n_discard=n_discard))
+            top_hand, _, discards = self.optimal_discard(hand, n_discard=n_discard)
+            self.player_hands_after_discard.append(top_hand)
+            self.discard_pile.extend(discards)
+
+        print(self.player_hands_after_discard)
+        print(self.discard_pile)
 
     def optimal_discard(self, hand, n_discard):
         top_score = 0
@@ -232,16 +263,18 @@ class cribbage:
                 top_score = hand_score
                 top_hand = possible_hand
 
-        discarded = list(set(hand) - set(top_hand))
+        discarded = list(set(hand) - set(top_hand)) # cards that are discarded in this case
         return top_hand, top_score[0], discarded
 
 
 
-x = cribbage(n_players = 2)# get a deck of cards
+x = cribbage(n_players = 3)# get a deck of cards
 x.deal_cards() # deal the cards to the players
 x.discard_cards()
 
-# x.evaluate_points_in_hands()#community_card=x.discard_pile[0])
+# x.evaluate_points_in_hand(hand_to_evaluate=[('Hearts', 'J', 10), ('Clubs', '8', 8), ('Hearts', '8', 8), ('Spades', '4', 4)]),
+#                           flip_card=('Hearts', '10', 10))#community_card=x.discard_pile[0])
+# print (points)
 # x.discard_cards()
 # for hand in x.inital_player_hands:
 #     print(hand)
