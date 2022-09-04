@@ -6,7 +6,7 @@ import random
 from math import comb
 
 class cribbage:
-    def __init__(self):
+    def __init__(self,n_players):
 
         ### Set up the deck of cards
         suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
@@ -15,25 +15,25 @@ class cribbage:
 
         self.deck = [(suit, item[0], item[1]) for suit in suits for item in face_vals.items()] # list of all cards,
                                                                                                 # suit, number, and value
-
+        self.n_players= n_players
     def shuffle_cards(self):
         shuffled_deck = random.sample(self.deck, len(self.deck))
         return shuffled_deck
 
-    def deal_cards(self, n_players=2):
+    def deal_cards(self):
         ''' provide the number of players, this will return the appropriate # of cards per person'''
 
-        if n_players == 2:
+        if self.n_players == 2:
             cards_per_player = 6
             discard_one = False
             player_piles = [[],[]] # two empty piles of cards
 
-        elif n_players == 3:
+        elif self.n_players == 3:
             cards_per_player = 5
             discard_one = True
             player_piles = [[], [], []] # three empty piles of cards
 
-        elif n_players == 4:
+        elif self.n_players == 4:
             cards_per_player = 5
             discard_one = False
             player_piles = [[], [], [], []] # four empty piles of cards
@@ -49,11 +49,11 @@ class cribbage:
 
         ### Deal the cards appropriately
         ### n_players * cards per player = the total number of cards to draw from the deck
-        drawn_cards = shuffled_deck[0: n_players*cards_per_player]    # randomly select that many cards from the deck without replacement
-        for i in range(cards_per_player*n_players):
-            player_piles[i%n_players].append(drawn_cards[i]) # put the cards into player hands sequentially
+        drawn_cards = shuffled_deck[0: self.n_players*cards_per_player]    # randomly select that many cards from the deck without replacement
+        for i in range(cards_per_player*self.n_players):
+            player_piles[i%self.n_players].append(drawn_cards[i]) # put the cards into player hands sequentially
 
-        self.deck_index+=n_players*cards_per_player #update index
+        self.deck_index+=self.n_players*cards_per_player #update index
 
         discard_pile = []
         if discard_one: # if we need to discard one to the main pot, then we do so here
@@ -105,25 +105,25 @@ class cribbage:
         run_points = self.run_points(player_hands)
         flush_points = self.flush_points(player_hands)
 
-        print("Fifteens: ", n_fifteens)
-        print("Pairs: ", n_pairs)
-        print("RUN POINTS: ", run_points)
-        print("FLUSH POINTS: ", flush_points)
+        # print("Fifteens: ", n_fifteens)
+        # print("Pairs: ", n_pairs)
+        # print("RUN POINTS: ", run_points)
+        # print("FLUSH POINTS: ", flush_points)
 
         total_points = (np.asarray(n_fifteens) * 2.0)\
                        + (np.asarray(n_pairs) * 2.0) \
                        + (np.asarray(run_points)) \
                        + (np.asarray(flush_points))
 
-        for i, hand in enumerate(player_hands):
-            for j in hand:
-                print(j[0:2])
-            print(total_points[i])
-            print()
+        # for i, hand in enumerate(player_hands):
+        #     for j in hand:
+        #         print(j[0:2])
+        #     print(total_points[i])
+        #     print()
 
         # print(player_hands)
         # print("TOTAL POINTS: ",total_points)
-        pass
+        return total_points
 
     def n_fifteens(self, player_hands):
         # count up the number of fifteens in a hand
@@ -227,18 +227,35 @@ class cribbage:
 
         player_hands = self.inital_player_hands
 
-        for hand in player_hands:
-            print(hand)
+        if self.n_players ==2:
+            ndiscard = 2
+        else:
+            ndiscard = 1
 
+
+        print(self.evaluate_points_in_hands(player_hands))
+        for hand in player_hands:
+            potential_hands = []
+
+            print(hand)
+            print(self.evaluate_points_in_hands(hand))
+            # print()
+            # for combo in itertools.combinations(hand, len(hand)-ndiscard):
+            #     possible_hand = list(combo)
+            #     print(possible_hand)
+            #     print(self.evaluate_points_in_hands(possible_hand))
+            # print()
+            # print()
+            # print([",".join(map(str, comb)) for comb in itertools.combinations(hand, len(hand)-ndiscard)])
+            # print(self.inital_points)
 
         pass
 
 
-x = cribbage() # get a deck of cards
-x.deal_cards(n_players=2) # deal the cards to the players
-# x.evaluate_points_in_hands()#community_card=x.discard_pile[0])
+x = cribbage(n_players = 3)# get a deck of cards
+x.deal_cards() # deal the cards to the players
+x.evaluate_points_in_hands()#community_card=x.discard_pile[0])
 x.discard_cards()
-
 # for hand in x.inital_player_hands:
 #     print(hand)
 #
