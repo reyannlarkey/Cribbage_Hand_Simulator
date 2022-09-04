@@ -223,7 +223,6 @@ class cribbage:
 
         return nobs_points
 
-
     def discard_cards(self):
         '''
         This is where things get tricky, and is really the crux of why I wanted to do this.
@@ -265,6 +264,12 @@ class cribbage:
 
         discarded = list(set(hand) - set(top_hand)) # cards that are discarded in this case
         return top_hand, top_score[0], discarded
+
+    def play_round(self, hands, discard_pile):
+        ''' the real meat of the game here...the round'''
+
+        pass
+
 
 
 
