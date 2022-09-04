@@ -102,17 +102,17 @@ class cribbage:
         run_points = self.run_points(hand_to_evaluate)
         flush_points = self.flush_points(hand_to_evaluate)
 
-        print("Fifteens: ", n_fifteens[0]*2.0)
-        print("Pairs: ", n_pairs[0]*2.0)
-        print("Runs :" ,run_points[0])
-        print("Flushes :", flush_points[0])
+        # print("Fifteens: ", n_fifteens[0]*2.0)
+        # print("Pairs: ", n_pairs[0]*2.0)
+        # print("Runs :" ,run_points[0])
+        # print("Flushes :", flush_points[0])
 
         ### add up all the returned points
         total_points = (np.asarray(n_fifteens) * 2.0)\
                        + (np.asarray(n_pairs) * 2.0) \
                        + (np.asarray(run_points)) \
                        + (np.asarray(flush_points))
-        print("TOTAL : ", total_points[0])
+        # print("TOTAL : ", total_points[0])
         return total_points
 
     def n_fifteens(self, hand_to_evaluate):
@@ -215,38 +215,31 @@ class cribbage:
         player_hands = self.inital_player_hands
 
         if self.n_players ==2:
-            ndiscard = 2
+            n_discard = 2
         else:
-            ndiscard = 1
+            n_discard = 1
+        for hand in player_hands: # check through all the hands
+            print(self.optimal_discard(hand, n_discard=n_discard))
+
+    def optimal_discard(self, hand, n_discard):
+        top_score = 0
+        top_hand = None
+        for combo in itertools.combinations(hand, len(hand)-n_discard): # check all possible combinations of cards
+                                                                       # to find the optimal one at the moment.
+            possible_hand = list(combo)
+            hand_score = self.evaluate_points_in_hand(possible_hand)
+            if hand_score > top_score: # if this score is better than zero (or the previous), keep track
+                top_score = hand_score
+                top_hand = possible_hand
+
+        discarded = list(set(hand) - set(top_hand))
+        return top_hand, top_score[0], discarded
 
 
 
-        for hand in player_hands:
-            potential_hands = []
-
-            print(hand)
-            print(self.evaluate_points_in_hand(hand))
-            # print()
-            # for combo in itertools.combinations(hand, len(hand)-ndiscard):
-            #     possible_hand = list(combo)
-            #     print(possible_hand)
-            #     print(self.evaluate_points_in_hands(possible_hand))
-            # print()
-            # print()
-            # print([",".join(map(str, comb)) for comb in itertools.combinations(hand, len(hand)-ndiscard)])
-            # print(self.inital_points)
-
-        pass
-
-
-'''
-POINT EVALUATOR CANNOT HANDLE SINGLE HANDS,WHICH IS A PROBLEM RN, NEED TO FIX THIS!
-'''
-
-
-x = cribbage(n_players = 3)# get a deck of cards
+x = cribbage(n_players = 2)# get a deck of cards
 x.deal_cards() # deal the cards to the players
-x.evaluate_points_in_hand(hand_to_evaluate=[('Spades', '2', 5), ('Spades', '4', 4), ('Hearts', '9', 9), ('Spades', '10', 10), ('Spades', 'J', 10)])
+x.discard_cards()
 
 # x.evaluate_points_in_hands()#community_card=x.discard_pile[0])
 # x.discard_cards()
