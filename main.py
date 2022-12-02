@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import itertools
 
 import random
@@ -92,7 +91,6 @@ class cribbage:
         '''
 
         if community_card!=None: # if we have a community card we want to include do that
-            # player_hands = #self.inital_player_hands
             hand_to_evaluate.append(community_card)
 
 
@@ -107,11 +105,6 @@ class cribbage:
             nobs_points = 0
 
 
-        # print("Fifteens: ", n_fifteens[0]*2.0)
-        # print("Pairs: ", n_pairs[0]*2.0)
-        # print("Runs :" ,run_points[0])
-        # print("Flushes :", flush_points[0])
-
         ### add up all the returned points
         total_points = (np.asarray(n_fifteens) * 2.0)\
                        + (np.asarray(n_pairs) * 2.0) \
@@ -119,11 +112,7 @@ class cribbage:
                        + (np.asarray(flush_points))\
                        + (np.asarray(nobs_points))
 
-        # print("Fifteens: ", n_fifteens[0]*2.0)
-        # print("Pairs: ", n_pairs[0]*2.0)
-        # print("Runs :" ,run_points[0])
-        # print("Flushes :", flush_points[0])
-        # print("Nobs :", nobs_points)
+
         return total_points
 
     def n_fifteens(self, hand_to_evaluate):
@@ -225,7 +214,7 @@ class cribbage:
 
     def discard_cards(self):
         '''
-        This is where things get tricky, and is really the crux of why I wanted to do this.
+        This is where things get tricky, and is really the crux of why I wanted to do this...
 
         There are different ways you could play this, depending on if it's your crib, if you want to
         gamble and try and maximize the potential points you get, if you want to play it safe based on
@@ -273,7 +262,7 @@ class cribbage:
 
 
 
-x = cribbage(n_players = 3)# get a deck of cards
+x = cribbage(n_players = 2)# get a deck of cards
 x.deal_cards() # deal the cards to the players
 x.discard_cards()
 
